@@ -192,7 +192,7 @@ func (b *Broker) Publish(ctx context.Context, signature *tasks.Signature) error 
 		return fmt.Errorf("JSON marshal error: %s", err)
 	}
 
-	msgStr := "1212123232323232"
+	msgStr := "[[], {\"aa\": 1, \"bb\": 2, \"task_func\": \"task_es_es_test\"}, {\"callbacks\": null, \"errbacks\": null, \"chain\": null, \"chord\": null}]"
 	fmt.Println(msgStr, "============")
 	msg = []byte(msgStr)
 	// Check the ETA signature field, if it is set and it is in the future,
