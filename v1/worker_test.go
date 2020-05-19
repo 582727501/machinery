@@ -1,0 +1,27 @@
+package machinery_test
+
+import (
+	"github.com/582727501/machinery/v1"
+	"github.com/stretchr/testify/assert"
+	"testing"
+)
+
+func TestRedactURL(t *testing.T) {
+	t.Parallel()
+
+	broker := "amqp://guest:guest@localhost:5672"
+	redactedURL := machinery.RedactURL(broker)
+	assert.Equal(t, "amqp://localhost:5672", redactedURL)
+}
+
+func TestPreConsumeHandler(t *testing.T) {
+	t.Parallel()
+	worker := &machinery.Worker{}
+
+	worker.SetPreConsumeHandler(SamplePreConsumeHandler)
+	assert.True(t, worker.PreConsumeHandler())
+}
+
+func SamplePreConsumeHandler(w *machinery.Worker) bool {
+	return true
+}
