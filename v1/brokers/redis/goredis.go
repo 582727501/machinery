@@ -16,7 +16,7 @@ import (
 	"github.com/582727501/machinery/v1/config"
 	"github.com/582727501/machinery/v1/log"
 	"github.com/582727501/machinery/v1/tasks"
-	"github.com/582727501/redsync"
+	"github.com/RichardKnop/redsync"
 	"github.com/go-redis/redis"
 )
 
