@@ -192,9 +192,9 @@ func (b *Broker) Publish(ctx context.Context, signature *tasks.Signature) error 
 		return fmt.Errorf("JSON marshal error: %s", err)
 	}
 
-	msgStr := "[[], {\"UUID\":\"5555555\",\"Name\":\"add\",\"RoutingKey\":\"task_log_machinery_task33\",\"ETA\":null,\"GroupUUID\":\"\",\"GroupTaskCount\":0,\"Args\":[{\"Name\":\"\",\"Type\":\"int64\",\"Value\":1},{\"Name\":\"\",\"Type\":\"int64\",\"Value\":2}],\"Headers\":{},\"Priority\":0,\"Immutable\":false,\"RetryCount\":0,\"RetryTimeout\":0,\"OnSuccess\":null,\"OnError\":null,\"ChordCallback\":null,\"BrokerMessageGroupId\":\"\",\"SQSReceiptHandle\":\"\",\"StopTaskDeletionOnError\":false,\"IgnoreWhenTaskNotRegistered\":false}, {\"callbacks\": null, \"errbacks\": null, \"chain\": null, \"chord\": null}]"
-	fmt.Println(msgStr, "============")
-	msg = []byte(msgStr)
+	// 转为发送给python celery格式
+	msg = GetPythonMsg(msg)
+
 	// Check the ETA signature field, if it is set and it is in the future,
 	// delay the task
 	if signature.ETA != nil {
@@ -285,27 +285,11 @@ func (b *Broker) consume(deliveries <-chan amqp.Delivery, concurrency int, taskP
 			b.processingWG.Add(1)
 
 			//patch
-			body := string(d.Body)
-			res := make([]interface{}, 10)
-			err := json.Unmarshal([]byte(body), &res)
+			var err error
+			d.Body, err = GetBodyFromPythonCelery(d.Body)
 			if err != nil {
-				fmt.Println(err, "err====")
 				return err
 			}
-
-			if len(res) < 2 {
-				err = errors.New("bad data fomart")
-				return err
-			}
-
-			goCeleryBodyMap := res[1].(map[string]interface{})
-			d.Body, err = json.Marshal(goCeleryBodyMap)
-			if err != nil {
-				fmt.Println(err, "err====")
-				return err
-			}
-			fmt.Println("new machinery body==========：", string(d.Body))
-
 
 			// Consume the task inside a gotourine so multiple tasks
 			// can be processed concurrently
