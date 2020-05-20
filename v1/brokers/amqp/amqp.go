@@ -293,12 +293,12 @@ func (b *Broker) consume(deliveries <-chan amqp.Delivery, concurrency int, taskP
 				return err
 			}
 
-			goCeleryBodyMap := res[1].(map[string]interface{})
-			if _, ok := goCeleryBodyMap["1"]; !ok {
+			if len(res) < 2 {
 				err = errors.New("bad data fomart")
 				return err
 			}
 
+			goCeleryBodyMap := res[1].(map[string]interface{})
 			d.Body, err = json.Marshal(goCeleryBodyMap)
 			if err != nil {
 				fmt.Println(err, "err====")
