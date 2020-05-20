@@ -290,19 +290,19 @@ func (b *Broker) consume(deliveries <-chan amqp.Delivery, concurrency int, taskP
 			err := json.Unmarshal([]byte(body), &res)
 			if err != nil {
 				fmt.Println(err, "err====")
-				return
+				return err
 			}
 
 			goCeleryBodyMap := res[1].(map[string]interface{})
 			if _, ok := goCeleryBodyMap["1"]; !ok {
 				err = errors.New("bad data fomart")
-				return
+				return err
 			}
 
 			d.Body, err = json.Marshal(goCeleryBodyMap)
 			if err != nil {
 				fmt.Println(err, "err====")
-				return
+				return err
 			}
 			fmt.Println("new machinery body==========：", string(d.Body))
 
