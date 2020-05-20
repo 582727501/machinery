@@ -49,6 +49,8 @@ var (
 	}
 
 	reloadDelay = time.Second * 10
+
+	CeleryMode bool
 )
 
 // Config holds all configuration for our program

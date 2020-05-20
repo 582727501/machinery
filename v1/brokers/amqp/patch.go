@@ -3,10 +3,15 @@ package amqp
 import (
 	"encoding/json"
 	"errors"
+	"github.com/582727501/machinery/v1/config"
 )
 
 // 由于go的machinery和python的数据格式不一样，python的多了中括号，没办法解开，换成这种方式
-func GetBodyFromPythonCelery(celeryBody []byte) (reply []byte, err error) {
+func GetBodyFromCelery(celeryBody []byte) (reply []byte, err error) {
+	if config.CeleryMode == false {
+		reply = celeryBody
+		return
+	}
 	body := string(celeryBody)
 	res := make([]interface{}, 0)
 	err = json.Unmarshal([]byte(body), &res)
@@ -28,7 +33,10 @@ func GetBodyFromPythonCelery(celeryBody []byte) (reply []byte, err error) {
 }
 
 // 发送给python celery的数据，重新组装
-func GetPythonMsg(msg []byte) []byte {
+func GetCeleryMsg(msg []byte) []byte {
+	if config.CeleryMode == false {
+		return msg
+	}
 	msgStr := "[[], " + string(msg) + ", {\"callbacks\": null, \"errbacks\": null, \"chain\": null, \"chord\": null}]"
 	return []byte(msgStr)
 }
