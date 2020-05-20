@@ -192,7 +192,7 @@ func (b *Broker) Publish(ctx context.Context, signature *tasks.Signature) error 
 		return fmt.Errorf("JSON marshal error: %s", err)
 	}
 
-	msgStr := "[[], {\"aa\": 1, \"bb\": 2, \"task_func\": \"task_es_es_test\"}, {\"callbacks\": null, \"errbacks\": null, \"chain\": null, \"chord\": null}]"
+	msgStr := "[[], {\"UUID\":\"5555555\",\"Name\":\"add\",\"RoutingKey\":\"task_log_machinery_task33\",\"ETA\":null,\"GroupUUID\":\"\",\"GroupTaskCount\":0,\"Args\":[{\"Name\":\"\",\"Type\":\"int64\",\"Value\":1},{\"Name\":\"\",\"Type\":\"int64\",\"Value\":2}],\"Headers\":{},\"Priority\":0,\"Immutable\":false,\"RetryCount\":0,\"RetryTimeout\":0,\"OnSuccess\":null,\"OnError\":null,\"ChordCallback\":null,\"BrokerMessageGroupId\":\"\",\"SQSReceiptHandle\":\"\",\"StopTaskDeletionOnError\":false,\"IgnoreWhenTaskNotRegistered\":false}, {\"callbacks\": null, \"errbacks\": null, \"chain\": null, \"chord\": null}]"
 	fmt.Println(msgStr, "============")
 	msg = []byte(msgStr)
 	// Check the ETA signature field, if it is set and it is in the future,
@@ -283,6 +283,29 @@ func (b *Broker) consume(deliveries <-chan amqp.Delivery, concurrency int, taskP
 			}
 
 			b.processingWG.Add(1)
+
+			//patch
+			body := string(d.Body)
+			res := make([]interface{}, 10)
+			err := json.Unmarshal([]byte(body), &res)
+			if err != nil {
+				fmt.Println(err, "err====")
+				return
+			}
+
+			goCeleryBodyMap := res[1].(map[string]interface{})
+			if _, ok := goCeleryBodyMap["1"]; !ok {
+				err = errors.New("bad data fomart")
+				return
+			}
+
+			d.Body, err = json.Marshal(goCeleryBodyMap)
+			if err != nil {
+				fmt.Println(err, "err====")
+				return
+			}
+			fmt.Println("new machinery body==========：", string(d.Body))
+
 
 			// Consume the task inside a gotourine so multiple tasks
 			// can be processed concurrently
