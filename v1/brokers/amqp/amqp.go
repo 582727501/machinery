@@ -193,7 +193,7 @@ func (b *Broker) Publish(ctx context.Context, signature *tasks.Signature) error 
 	}
 
 	// 转为发送给python celery格式
-	msg = GetPythonMsg(msg)
+	msg = GetCeleryMsg(msg)
 
 	// Check the ETA signature field, if it is set and it is in the future,
 	// delay the task
@@ -286,7 +286,7 @@ func (b *Broker) consume(deliveries <-chan amqp.Delivery, concurrency int, taskP
 
 			//patch
 			var err error
-			d.Body, err = GetBodyFromPythonCelery(d.Body)
+			d.Body, err = GetBodyFromCelery(d.Body)
 			if err != nil {
 				return err
 			}
