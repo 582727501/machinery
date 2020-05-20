@@ -2,9 +2,8 @@ package amqp
 
 import (
 	"encoding/json"
-	"fmt"
+	"errors"
 )
-import "errors"
 
 // 由于go的machinery和python的数据格式不一样，python的多了中括号，没办法解开，换成这种方式
 func GetBodyFromPythonCelery(celeryBody []byte) (reply []byte, err error) {
