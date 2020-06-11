@@ -193,7 +193,10 @@ func (b *Broker) Publish(ctx context.Context, signature *tasks.Signature) error 
 	}
 
 	// 转为发送给python celery格式
-	msg = GetCeleryMsg(msg)
+	msg, err = GetCeleryMsg(msg)
+	if err != nil {
+		return fmt.Errorf("JSON marshal error: %s", err)
+	}
 
 	// Check the ETA signature field, if it is set and it is in the future,
 	// delay the task
